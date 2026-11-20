@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, AppState, AppStateStatus, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Component, ErrorInfo, ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, AppState, AppStateStatus, Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { initialWindowMetrics, Metrics, SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
@@ -40,6 +40,47 @@ type RootTabParamList = {
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 const AUTO_SYNC_MS = 12000;
+
+const windowDims = Dimensions.get('window');
+const SAFE_AREA_INITIAL_METRICS: Metrics = initialWindowMetrics ?? {
+  frame: { x: 0, y: 0, width: windowDims.width || 360, height: windowDims.height || 780 },
+  insets: { top: 0, right: 0, bottom: 0, left: 0 },
+};
+
+class AppErrorBoundary extends Component<
+  { children: ReactNode },
+  { error: Error | null }
+> {
+  state: { error: Error | null } = { error: null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(_error: Error, _info: ErrorInfo) {
+    // Captured in state for display
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <View style={styles.errorScreen}>
+          <Text style={styles.errorTitle}>Unable to open screen</Text>
+          <ScrollView style={styles.errorScroll}>
+            <Text style={styles.errorMessage}>{this.state.error.message || String(this.state.error)}</Text>
+          </ScrollView>
+          <Pressable
+            onPress={() => this.setState({ error: null })}
+            style={styles.errorRetryBtn}
+          >
+            <Text style={styles.errorRetryText}>Try Again</Text>
+          </Pressable>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export default function App() {
   const [data, setData] = useState<AppData>(() => createStarterData());
@@ -131,7 +172,7 @@ export default function App() {
     [handleSyncFailure, oauthToken, settings],
   );
 
-  // Initial load of local data + sync settings + first remote sync
+  // Initial load of local data + sync settings + non-blocking first remote sync
   useEffect(() => {
     let active = true;
     (async () => {
@@ -139,9 +180,11 @@ export default function App() {
       if (!active) return;
       setData(local);
       setSettings(loadedSettings);
+      setReady(true);
 
       if (loadedSettings.mode === 'bridge' && loadedSettings.bridgeUrl.trim()) {
         try {
+          setSyncing(true);
           const res = await bridgeApi.fetchAll(loadedSettings.bridgeUrl);
           if (active) {
             setData(res.data);
@@ -152,6 +195,8 @@ export default function App() {
           }
         } catch (err) {
           if (active) handleSyncFailure(err, false);
+        } finally {
+          if (active) setSyncing(false);
         }
       } else if (isRemoteSyncEnabled()) {
         try {
@@ -164,8 +209,6 @@ export default function App() {
           // Offline-first fallback
         }
       }
-
-      if (active) setReady(true);
     })();
     return () => {
       active = false;
@@ -976,32 +1019,29 @@ export default function App() {
     setSyncError(null);
   }, [persistSettings, settings]);
 
-  if (!ready) {
-    return (
-      <SafeAreaProvider>
-        <View style={styles.loadingScreen}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Loading Sample Stock Log…</Text>
-        </View>
-      </SafeAreaProvider>
-    );
-  }
-
   return (
-    <SafeAreaProvider>
-      <StatusBar style="dark" />
-      <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={({ route }) => ({
-            headerStyle: {
-              backgroundColor: COLORS.surface,
-            },
-            headerShadowVisible: false,
-            headerTitleStyle: {
-              fontSize: 18,
-              fontWeight: '700',
-              color: COLORS.text,
-            },
+    <AppErrorBoundary>
+      <SafeAreaProvider initialMetrics={SAFE_AREA_INITIAL_METRICS} style={styles.root}>
+        <StatusBar style="dark" />
+        {!ready ? (
+          <View style={styles.loadingScreen}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={styles.loadingText}>Loading Sample Stock Log…</Text>
+          </View>
+        ) : (
+          <NavigationContainer>
+            <Tab.Navigator
+              detachInactiveScreens={false}
+              screenOptions={({ route }) => ({
+                headerStyle: {
+                  backgroundColor: COLORS.surface,
+                },
+                headerShadowVisible: false,
+                headerTitleStyle: {
+                  fontSize: 18,
+                  fontWeight: '700',
+                  color: COLORS.text,
+                },
             tabBarActiveTintColor: COLORS.primary,
             tabBarInactiveTintColor: COLORS.textMuted,
             tabBarStyle: {
@@ -1082,14 +1122,20 @@ export default function App() {
                 onSignOutOAuth={handleSignOutOAuth}
               />
             )}
-          </Tab.Screen>
-        </Tab.Navigator>
-      </NavigationContainer>
-    </SafeAreaProvider>
+              </Tab.Screen>
+            </Tab.Navigator>
+          </NavigationContainer>
+        )}
+      </SafeAreaProvider>
+    </AppErrorBoundary>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+  },
   loadingScreen: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -1101,5 +1147,41 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: COLORS.textMuted,
+  },
+  errorScreen: {
+    flex: 1,
+    backgroundColor: COLORS.bg,
+    padding: 24,
+    justifyContent: 'center',
+    gap: 12,
+  },
+  errorTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.danger,
+  },
+  errorScroll: {
+    maxHeight: 220,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 10,
+    padding: 12,
+  },
+  errorMessage: {
+    fontSize: 13,
+    color: COLORS.text,
+  },
+  errorRetryBtn: {
+    minHeight: 46,
+    borderRadius: 10,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  errorRetryText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.primaryText,
   },
 });

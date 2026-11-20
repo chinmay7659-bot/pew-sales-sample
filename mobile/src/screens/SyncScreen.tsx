@@ -19,7 +19,11 @@ import { SyncSettings } from '../storage/syncSettings';
 import { COLORS, RADII } from '../theme';
 import { extractSpreadsheetId } from '../utils/stockUtils';
 
-WebBrowser.maybeCompleteAuthSession();
+try {
+  WebBrowser.maybeCompleteAuthSession();
+} catch {
+  // Safe fallback in standalone builds
+}
 
 const ANDROID_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID?.trim() || '';
 const IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID?.trim() || '';

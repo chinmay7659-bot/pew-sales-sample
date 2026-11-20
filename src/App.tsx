@@ -821,25 +821,25 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col">
-      {/* 3-Zone Top Bar */}
-      <header className="bg-white border-b border-slate-200 px-6 py-3.5">
-        <div className="max-w-6xl mx-auto flex items-center justify-between gap-8">
+      {/* Top Bar with nav below title */}
+      <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-x-6 gap-y-2.5">
           <a
             href="#records"
             onClick={(e) => {
               e.preventDefault();
               navigate('records');
             }}
-            className="text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap shrink-0"
+            className="order-1 text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap shrink-0"
           >
-            Sample Stock Log
+            PIYAEYEWEAR
           </a>
 
-          <nav className="flex items-center gap-6 text-sm font-medium text-slate-600">
+          <nav className="order-3 w-full pt-2 border-t border-slate-100 flex items-center gap-6 text-sm font-medium text-slate-600">
             <button
               type="button"
               onClick={() => navigate('records')}
-              className={`whitespace-nowrap shrink-0 pb-0.5 transition-colors cursor-pointer ${
+              className={`whitespace-nowrap shrink-0 pb-1 transition-colors cursor-pointer ${
                 view === 'records'
                   ? 'text-slate-900 font-semibold border-b-2 border-slate-900'
                   : 'hover:text-slate-900'
@@ -850,7 +850,7 @@ export default function App() {
             <button
               type="button"
               onClick={() => navigate('manage')}
-              className={`whitespace-nowrap shrink-0 pb-0.5 transition-colors cursor-pointer ${
+              className={`whitespace-nowrap shrink-0 pb-1 transition-colors cursor-pointer ${
                 view === 'manage'
                   ? 'text-slate-900 font-semibold border-b-2 border-slate-900'
                   : 'hover:text-slate-900'
@@ -860,7 +860,7 @@ export default function App() {
             </button>
           </nav>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="order-2 flex items-center gap-3 shrink-0">
             <button
               type="button"
               onClick={handleExportAllCsv}
@@ -872,7 +872,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-6">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6">
         <PWAInstallBanner />
         <GoogleSheetsPanel
           user={user}
