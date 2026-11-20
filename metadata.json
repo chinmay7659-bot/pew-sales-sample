@@ -1,0 +1,8 @@
+{
+  "name": "pew sales-sample",
+  "description": "sales sample record",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

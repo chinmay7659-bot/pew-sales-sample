@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sample Stock Log</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--tx:#1b1f24;--mu:#667085;--bd:#e3e7ee;--ac:#2563eb;--ac2:#fff;--soft:#eef3ff;--dg:#c62828;
+--b1:#e8f0ff;--t1:#1d4ed8;--b2:#fff3dc;--t2:#b45309;--b3:#e3f6e8;--t3:#15803d;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101316;--card:#1a1e23;--tx:#e8eaed;--mu:#9aa3ad;--bd:#2b3138;--ac:#4c8dff;--ac2:#0b1220;--soft:#202a3d;--dg:#ef6b6b;--b1:#1e2c47;--t1:#8db4ff;--b2:#3a2d14;--t2:#f5b95a;--b3:#173323;--t3:#6fd28b}}
+:root[data-theme="dark"]{--bg:#101316;--card:#1a1e23;--tx:#e8eaed;--mu:#9aa3ad;--bd:#2b3138;--ac:#4c8dff;--ac2:#0b1220;--soft:#202a3d;--dg:#ef6b6b;--b1:#1e2c47;--t1:#8db4ff;--b2:#3a2d14;--t2:#f5b95a;--b3:#173323;--t3:#6fd28b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 2px}
+.sub{color:var(--mu);margin:0 0 16px;font-size:13px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+.card h2{font-size:16px;margin:0 0 14px}
+.grp{background:var(--soft);border-radius:12px;padding:12px;margin-bottom:12px}
+.grp-t{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ac);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.grp-t i{font-style:normal;background:var(--ac);color:var(--ac2);width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:4px}
+label small{font-weight:400;color:var(--mu)}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font:inherit}
+input:focus,select:focus{outline:2px solid var(--ac);border-color:transparent}
+.step{display:flex;gap:6px}
+.step input{text-align:center;font-weight:700;font-size:16px}
+.step button{width:42px;padding:0;font-size:20px;background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+button{padding:10px 16px;border:0;border-radius:10px;background:var(--ac);color:var(--ac2);font:inherit;font-weight:600;cursor:pointer}
+button.sec{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+button.del{background:transparent;color:var(--dg);padding:2px 8px;font-weight:500}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{flex:1;min-width:110px;background:var(--card);color:var(--tx);border:2px solid var(--bd)}
+.seg button.on[data-v="Sent"]{background:var(--b1);color:var(--t1);border-color:var(--t1)}
+.seg button.on[data-v="Returned"]{background:var(--b2);color:var(--t2);border-color:var(--t2)}
+.seg button.on[data-v="Converted to sale"]{background:var(--b3);color:var(--t3);border-color:var(--t3)}
+.save{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.save button{padding:12px 28px;font-size:16px}
+.msg{color:var(--mu);font-size:13px;margin:0}.ok{color:var(--t3);font-weight:600}.bad{color:var(--dg);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:12px 14px;display:flex;gap:12px;align-items:center}
+.stat em{font-style:normal;font-size:22px;background:var(--soft);width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.stat b{display:block;font-size:22px;line-height:1.1}.stat span{color:var(--mu);font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
+.sp{border:1px solid var(--bd);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.sp-h{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--soft);flex-wrap:wrap}
+.av{width:34px;height:34px;border-radius:50%;background:var(--ac);color:var(--ac2);display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.sp-n{font-weight:700;font-size:16px;flex:1;min-width:120px}
+.tot{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--bd);border-radius:999px;padding:3px 12px;font-size:13px}
+.it{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-top:1px solid var(--bd);flex-wrap:wrap}
+.it.zero{opacity:.55}
+.it-m{font-weight:700}.it-d{color:var(--mu)}
+.it-r{text-align:right}.it-r b{font-size:18px}.it-r div{font-size:12px;color:var(--mu)}
+details{border-top:1px solid var(--bd)}
+summary{padding:10px 14px;cursor:pointer;color:var(--mu);font-size:13px}
+.h{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 14px;border-top:1px dashed var(--bd);font-size:13px}
+.h .d{color:var(--mu);min-width:92px}.h .n{color:var(--mu);flex:1;min-width:80px}
+.badge{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+.badge.Sent{background:var(--b1);color:var(--t1)}.badge.Returned{background:var(--b2);color:var(--t2)}.badge.Converted{background:var(--b3);color:var(--t3)}
+.cb{display:flex;border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:var(--card)}
+.cb:focus-within{outline:2px solid var(--ac)}
+.cb input{border:0;border-radius:0;flex:1;min-width:0;outline:0}
+.cb button{border-radius:0;border-left:1px solid var(--bd);background:var(--soft);color:var(--ac);padding:0 12px;font-size:13px;white-space:nowrap}
+[hidden]{display:none!important}
+.nl{color:var(--ac);font-weight:600;text-decoration:none}
+.lr{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--bd);flex-wrap:wrap}.lr .n{flex:1;min-width:120px}
+.gh{font-weight:700;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📦 Sample Stock Log</h1>
+  <p class="sub">Record items sent to salespeople as samples. Everyone with access sees updates live.</p>
+
+  <div id="v-main">
+  <p style="margin:0 0 12px"><a class="nl" href="#manage">⚙ Manage lists (salespeople, designs, model numbers)</a></p>
+  <div class="stats">
+    <div class="stat"><em>🧾</em><div><b id="s-n">0</b><span>Records</span></div></div>
+    <div class="stat"><em>📤</em><div><b id="s-q">0</b><span>Units with salespeople</span></div></div>
+    <div class="stat"><em>🧺</em><div><b id="s-t">0</b><span>Trays with salespeople</span></div></div>
+    <div class="stat"><em>🧑‍💼</em><div><b id="s-p">0</b><span>Salespeople</span></div></div>
+  </div>
+
+  <div class="card">
+    <h2>➕ New record</h2>
+    <div class="grp"><div class="grp-t"><i>1</i>Who &amp; when</div>
+      <div class="grid">
+        <div><label>Salesperson <small>(required)</small></label><select id="f-sp"></select></div>
+        <div><label>Date</label><input type="date" id="f-date"></div>
+      </div></div>
+    <div class="grp"><div class="grp-t"><i>2</i>What was given</div>
+      <div class="grid">
+        <div><label>Design <small>(required)</small></label><select id="f-design"></select></div>
+        <div><label>Model number <small>(required)</small></label><select id="f-item"></select></div>
+      </div><p class="msg" id="h-main" style="margin-top:8px"></p></div>
+    <div class="grp"><div class="grp-t"><i>3</i>How many</div>
+      <div class="grid">
+        <div><label>Quantity <small>(required)</small></label><div class="step"><button data-s="f-qty" data-d="-1" type="button">−</button><input type="number" id="f-qty" min="1" value="1"><button data-s="f-qty" data-d="1" type="button">+</button></div></div>
+        <div><label>No. of trays</label><div class="step"><button data-s="f-trays" data-d="-1" type="button">−</button><input type="number" id="f-trays" min="0" placeholder="0"><button data-s="f-trays" data-d="1" type="button">+</button></div></div>
+      </div></div>
+    <div class="grp"><div class="grp-t"><i>4</i>Status</div>
+      <div class="seg" id="f-st"><button class="on" data-v="Sent" type="button">📤 Sent</button><button data-v="Returned" type="button">↩️ Returned</button><button data-v="Converted to sale" type="button">✅ Converted to sale</button></div></div>
+    <div><label>Notes <small>(optional)</small></label><input id="f-note" placeholder="Anything worth remembering"></div>
+    <div class="save"><button id="add">Save record</button><p class="msg" id="err"></p></div>
+  </div>
+
+  <div class="card">
+    <h2>🧑‍💼 Sample record</h2>
+    <div class="row">
+      <div style="flex:1;min-width:180px"><label>Search</label><input id="q" placeholder="Salesperson, model, design…"></div>
+      <div><label>Salesperson</label><select id="fsp"><option value="">All</option></select></div>
+      <button class="sec" id="csv">⬇ Export CSV</button>
+    </div>
+    <div id="people"></div>
+    <p class="msg" id="empty"></p>
+    <p class="msg">“With them” = sent minus returned and converted to sale. Open “History” under a person to see every entry.</p>
+  </div>
+  </div>
+  <div id="v-manage" hidden>
+    <p style="margin:0 0 12px"><a class="nl" href="#">← Back to records</a></p>
+    <h2 style="font-size:20px;margin:0 0 4px">⚙ Manage lists</h2>
+    <p class="sub">Add or remove the salespeople, designs and model numbers that appear in the dropdown menus on the main page.</p>
+    <div class="card" id="imp" hidden><p class="msg" id="imp-t"></p><button id="imp-b" type="button">Import them</button></div>
+    <p class="msg" id="m-msg" style="margin-bottom:12px"></p>
+    <div class="card"><h2>🧑‍💼 Salespeople</h2><div class="cb"><input id="m-sp" placeholder="New salesperson name"><button id="m-sp-add" type="button">＋ Add</button></div><div id="l-sp"></div></div>
+    <div class="card"><h2>🎨 Designs</h2><div class="cb"><input id="m-d" placeholder="New design"><button id="m-d-add" type="button">＋ Add</button></div><div id="l-d"></div></div>
+    <div class="card"><h2>🔢 Model numbers</h2><label>Under design</label><select id="m-md" style="margin-bottom:8px"></select><div class="cb"><input id="m-m" placeholder="New model number"><button id="m-m-add" type="button">＋ Add</button></div><div id="l-m"></div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var db=null,user=null,me=null,canEdit=false,entries=[],cat=[],names={},status='Sent';
+  $('f-date').value=new Date().toISOString().slice(0,10);
+  
+  function esc(s){var d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML}
+  function fdate(s){var d=new Date(s+'T00:00:00');return isNaN(d)?(s||''):d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}
+  function badge(s){return s?'<span class="badge '+(s==='Converted to sale'?'Converted':esc(s))+'">'+esc(s)+'</span>':''}
+  function nk(s){return String(s||'').trim().toLowerCase()}
+  function num(v){return Number(v)||0}
+  function sign(e){return (e.status==='Returned'||e.status==='Converted to sale')?-1:1}
+
+  document.body.addEventListener('click',function(ev){
+    var t=ev.target.closest('button');if(!t)return;
+    if(t.dataset.s){var i=$(t.dataset.s),min=i.id==='f-qty'?1:0,v=(parseInt(i.value,10)||0)+parseInt(t.dataset.d,10);i.value=Math.max(min,v)}
+    if(t.parentNode.id==='f-st'){status=t.dataset.v;[].forEach.call(t.parentNode.children,function(b){b.classList.toggle('on',b===t)})}
+  });
+
+  function put(o,k,v){if(k&&(!o[k]||(v.id&&!o[k].id)))o[k]=v}
+  function maps(){
+    var S={},D={},M={};
+    entries.forEach(function(e){put(S,nk(e.salesperson),{name:e.salesperson});if(e.design){put(D,nk(e.design),{name:e.design});if(e.item)put(M,nk(e.item),{name:e.item,design:e.design})}});
+    cat.forEach(function(x){
+      if(x.type==='salesperson')put(S,nk(x.name),{name:x.name,id:x.id});
+      else if(x.type==='design')put(D,nk(x.name),{name:x.name,id:x.id});
+      else if(x.type==='model'){put(D,nk(x.design),{name:x.design});put(M,nk(x.name),{name:x.name,design:x.design,id:x.id})}
+    });
+    return {S:S,D:D,M:M};
+  }
+  function ci(a,b){return a.toLowerCase()<b.toLowerCase()?-1:1}
+  function fillSel(id,arr,ph){var el=$(id),cur=el.value;arr.sort(ci);el.innerHTML='<option value="">'+ph+'</option>'+arr.map(function(n){return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join('');el.value=arr.indexOf(cur)>-1?cur:''}
+  function vals(o,f){return Object.keys(o).filter(f||function(){return true}).map(function(k){return o[k].name})}
+  function lists(){
+    var C=maps(),d=nk($('f-design').value);
+    fillSel('f-sp',vals(C.S),'Select salesperson…');
+    fillSel('f-design',vals(C.D),'Select design…');
+    fillSel('f-item',vals(C.M,function(k){return d&&nk(C.M[k].design)===d}),d?'Select model number…':'Choose a design first');
+    $('h-main').innerHTML=Object.keys(C.D).length?'':'Nothing to choose yet. Add designs and model numbers in <a class="nl" href="#manage">Manage lists</a>.';
+  }
+  function route(){var m=location.hash==='#manage';$('v-main').hidden=m;$('v-manage').hidden=!m;window.scrollTo(0,0)}
+  function row(name,note,btn){return '<div class="lr"><span class="n"><b>'+esc(name)+'</b> <span class="msg">'+esc(note)+'</span></span>'+btn+'</div>'}
+  function dbtn(k,id,name){return '<button class="del" data-act="cat" data-k="'+k+'" data-id="'+esc(id)+'" data-name="'+esc(name)+'">Delete</button>'}
+  function manage(){
+    var C=maps(),mc={};
+    entries.forEach(function(e){['s:'+nk(e.salesperson),'m:'+nk(e.item)].forEach(function(x){mc[x]=(mc[x]||0)+1})});
+    function byname(o){return Object.keys(o).sort(function(a,b){return ci(o[a].name,o[b].name)})}
+    $('l-sp').innerHTML=byname(C.S).map(function(k){var o=C.S[k],n=mc['s:'+k]||0;return row(o.name,n+' record'+(n===1?'':'s'),o.id?dbtn('s',o.id,o.name):'<span class="msg">from records</span>')}).join('')||'<p class="msg">None yet.</p>';
+    $('l-d').innerHTML=byname(C.D).map(function(k){var o=C.D[k],n=Object.keys(C.M).filter(function(x){return nk(C.M[x].design)===k}).length;return row(o.name,n+' model number'+(n===1?'':'s'),o.id?dbtn('d',o.id,o.name):'<span class="msg">from records</span>')}).join('')||'<p class="msg">None yet.</p>';
+    var cur=$('m-md').value;fillSel('m-md',vals(C.D),'Select design…');if(vals(C.D).indexOf(cur)>-1)$('m-md').value=cur;
+    var h='';byname(C.D).forEach(function(dk){var ms=byname(C.M).filter(function(k){return nk(C.M[k].design)===dk});if(!ms.length)return;h+='<div class="gh">'+esc(C.D[dk].name)+'</div>'+ms.map(function(k){var o=C.M[k],n=mc['m:'+k]||0;return row(o.name,n+' record'+(n===1?'':'s'),o.id?dbtn('m',o.id,o.name):'<span class="msg">from records</span>')}).join('')});
+    $('l-m').innerHTML=h||'<p class="msg">None yet.</p>';
+    var miss=[];Object.keys(C.S).forEach(function(k){if(!C.S[k].id)miss.push({type:'salesperson',name:C.S[k].name})});
+    Object.keys(C.D).forEach(function(k){if(!C.D[k].id)miss.push({type:'design',name:C.D[k].name})});
+    Object.keys(C.M).forEach(function(k){if(!C.M[k].id)miss.push({type:'model',name:C.M[k].name,design:C.M[k].design})});
+    $('imp').hidden=!miss.length;$('imp-t').textContent=miss.length+' item(s) from earlier records are not in these lists yet, so they can’t be deleted here.';window.__miss=miss;
+  }
+  function mmsg(t,c){var m=$('m-msg');m.textContent=t;m.className='msg '+(c||'')}
+  async function addCat(rec){
+    if(!db){mmsg('Cannot save right now.','bad');return false}
+    try{rec.by=me;rec.ts=Date.now();await db.collection('catalog').add(rec);return true}catch(e){mmsg('Could not add: '+(e&&e.message||'not allowed'),'bad');return false}
+  }
+  $('m-sp-add').onclick=async function(){var v=$('m-sp').value.trim(),C=maps();if(!v)return mmsg('Type a name first.','bad');if(C.S[nk(v)])return mmsg('Already in the list.','bad');if(await addCat({type:'salesperson',name:v})){$('m-sp').value='';mmsg('Salesperson added ✓','ok')}};
+  $('m-d-add').onclick=async function(){var v=$('m-d').value.trim(),C=maps();if(!v)return mmsg('Type a design first.','bad');if(C.D[nk(v)])return mmsg('Already in the list.','bad');if(await addCat({type:'design',name:v})){$('m-d').value='';mmsg('Design added ✓','ok')}};
+  $('m-m-add').onclick=async function(){var v=$('m-m').value.trim(),d=$('m-md').value,C=maps();if(!d)return mmsg('Choose the design first.','bad');if(!v)return mmsg('Type a model number first.','bad');var m=C.M[nk(v)];if(m)return mmsg(nk(m.design)===nk(d)?'Already in the list.':'That model number already belongs to design “'+m.design+'”.','bad');if(await addCat({type:'model',name:v,design:d})){$('m-m').value='';mmsg('Model number added ✓','ok')}};
+  $('imp-b').onclick=async function(){var a=window.__miss||[];for(var i=0;i<a.length;i++){if(!await addCat(a[i]))return}mmsg('Imported ✓','ok')};
+  $('f-design').addEventListener('change',lists);
+  window.addEventListener('hashchange',route);
+  function render(){
+    var q=$('q').value.toLowerCase(),fs=$('fsp').value;
+    var list=entries.filter(function(e){
+      if(fs&&e.salesperson!==fs)return false;
+      return !q||[e.salesperson,e.item,e.design,e.notes,e.status].join(' ').toLowerCase().indexOf(q)>-1;
+    });
+    var P={};
+    list.forEach(function(e){
+      var k=nk(e.salesperson),p=P[k]||(P[k]={name:String(e.salesperson||'?').trim(),items:{},hist:[],u:0,t:0});
+      var ik=nk(e.item)+'|'+nk(e.design),it=p.items[ik]||(p.items[ik]={m:e.item,d:e.design,s:0,o:0,ts:0,to:0});
+      var qn=num(e.qty),tn=num(e.trays);
+      if(sign(e)>0){it.s+=qn;it.ts+=tn}else{it.o+=qn;it.to+=tn}
+      p.u+=sign(e)*qn;p.t+=sign(e)*tn;p.hist.push(e);
+    });
+    var pk=Object.keys(P).sort(function(a,b){return P[b].u-P[a].u});
+    var U=0,T=0;
+    $('people').innerHTML=pk.map(function(k){
+      var p=P[k];U+=p.u;T+=p.t;
+      var its=Object.keys(p.items).map(function(x){return p.items[x]}).sort(function(a,b){return (b.s-b.o)-(a.s-a.o)});
+      return '<div class="sp"><div class="sp-h"><span class="av">'+esc(p.name.charAt(0).toUpperCase())+'</span><span class="sp-n">'+esc(p.name)+'</span><span class="tot"><span class="pill"><b>'+p.u+'</b> units</span><span class="pill"><b>'+p.t+'</b> trays</span></span></div>'+
+      its.map(function(i){var h=i.s-i.o,tt=i.ts-i.to;
+        return '<div class="it'+(h<=0?' zero':'')+'"><div><span class="it-m">'+esc(i.m)+'</span>'+(i.d?' <span class="it-d">· '+esc(i.d)+'</span>':'')+'</div><div class="it-r"><b>'+h+'</b> with them</div></div>'}).join('')+
+      '<details><summary>History ('+p.hist.length+' '+(p.hist.length===1?'entry':'entries')+')</summary>'+
+      p.hist.map(function(e){return '<div class="h"><span class="d">'+esc(fdate(e.date))+'</span><span><b>'+esc(e.item)+'</b> '+esc(e.design)+'</span><span>× '+esc(e.qty)+'</span><span>'+(e.trays!=null&&e.trays!==''?esc(e.trays)+' trays':'')+'</span>'+badge(e.status)+'<span class="n">'+esc(e.notes)+' '+(names[e.by]?'(by '+esc(names[e.by])+')':'')+'</span>'+'<button class="del" data-act="rec" data-id="'+esc(e.id)+'">Delete</button>'+'</div>'}).join('')+'</details></div>';
+    }).join('');
+    $('empty').textContent=pk.length?'':(entries.length?'No matching records.':'No records yet. Add the first one above.');
+    var by={},items={},designs={};
+    entries.forEach(function(e){by[e.salesperson]=1});
+    var all={},A=0,B=0;
+    entries.forEach(function(e){var k=nk(e.salesperson);all[k]=1;A+=sign(e)*num(e.qty);B+=sign(e)*num(e.trays)});
+    $('s-n').textContent=entries.length;$('s-q').textContent=A;$('s-t').textContent=B;$('s-p').textContent=Object.keys(all).length;
+    function opts(o){return Object.keys(o).sort().map(function(k){return '<option value="'+esc(k)+'">'}).join('')}
+    lists();manage();
+    var cur=$('fsp').value;
+    $('fsp').innerHTML='<option value="">All</option>'+Object.keys(by).sort().map(function(k){return '<option'+(k===cur?' selected':'')+' value="'+esc(k)+'">'+esc(k)+'</option>'}).join('');
+  }
+
+  async function resolveNames(){
+    if(!user)return;
+    var ids=[];entries.forEach(function(e){if(e.by&&ids.indexOf(e.by)<0&&!(e.by in names))ids.push(e.by)});
+    if(!ids.length)return;
+    try{var p=await user.profiles(ids);ids.forEach(function(i){names[i]=(p[i]&&p[i].name)||'Someone'});render()}catch(e){}
+  }
+  function say(t,c){var m=$('err');m.textContent=t;m.className='msg '+(c||'')}
+
+  $('add').onclick=async function(){
+    var sp=$('f-sp').value,dn=$('f-design').value,item=$('f-item').value,qty=parseInt($('f-qty').value,10);
+    if(!sp||!dn||!item||!(qty>0)){say('Please choose salesperson, design, model number and a quantity above 0.','bad');return}
+    if(!db){say('Cannot save right now. Sign in or ask the owner for edit access.','bad');return}
+    say('Saving…');
+    try{
+      await db.collection('samples').add({date:$('f-date').value,salesperson:sp,item:item,design:dn,qty:qty,trays:$('f-trays').value===''?null:parseInt($('f-trays').value,10),status:status,notes:$('f-note').value.trim(),by:me,ts:Date.now()});
+      $('f-item').value='';$('f-qty').value='1';$('f-trays').value='';$('f-note').value='';
+      say('Saved ✓','ok');setTimeout(function(){if($('err').textContent==='Saved ✓')say('')},3000);
+    }catch(e){say('Could not save: '+(e&&e.message||e.code||'error'),'bad')}
+  };
+  document.body.addEventListener('click',async function(ev){
+    var b=ev.target.closest&&ev.target.closest('button[data-act]');if(!b||!db)return;
+    var lab=b.textContent;
+    if(!b.dataset.arm){b.dataset.arm='1';b.textContent='Tap again to delete';b.style.fontWeight='700';setTimeout(function(){if(b.isConnected&&b.dataset.arm){delete b.dataset.arm;b.textContent=lab;b.style.fontWeight=''}},4000);return}
+    var C=maps(),k=b.dataset.k,n=nk(b.dataset.name),why='';
+    if(b.dataset.act==='cat'){
+      if(k==='s'&&entries.some(function(e){return nk(e.salesperson)===n}))why='Records still use this salesperson. Delete those records first.';
+      if(k==='m'&&entries.some(function(e){return nk(e.item)===n}))why='Records still use this model number. Delete those records first.';
+      if(k==='d'){if(Object.keys(C.M).some(function(x){return nk(C.M[x].design)===n}))why='Delete this design’s model numbers first.'}
+    }
+    if(why){mmsg(why,'bad');delete b.dataset.arm;b.textContent=lab;b.style.fontWeight='';return}
+    try{await db.collection(b.dataset.act==='cat'?'catalog':'samples').doc(b.dataset.id).delete();if(b.dataset.act==='cat')mmsg('Deleted ✓','ok')}catch(e){b.textContent='Delete failed: '+(e&&e.message||'not allowed')}
+  });
+  $('q').oninput=render;$('fsp').onchange=render;
+
+  $('csv').onclick=async function(){
+    var head=['Date','Salesperson','Model number','Design','Qty','Trays','Status','Notes'];
+    var lines=[head.join(',')].concat(entries.map(function(e){
+      return [e.date,e.salesperson,e.item,e.design,e.qty,e.trays,e.status,e.notes].map(function(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"'}).join(',');
+    }));
+    try{
+      var d=await claude.use('downloads');
+      if(!d){say('Download is not available here.','bad');return}
+      await d.save({filename:'sample-log.csv',data:lines.join('\n')});
+    }catch(e){}
+  };
+
+  async function init(){
+    try{user=await claude.use('user');if(user){canEdit=await user.canEdit();me=await user.id();}}catch(e){}
+    render();
+    try{db=await claude.use('db')}catch(e){}
+    if(!db){$('empty').textContent='Sign in to view and add records.';return}
+    var t=setTimeout(function(){if(!entries.length)$('empty').textContent='Still loading…'},10000);
+    db.collection('catalog').orderBy('ts','desc').onSnapshot(function(c){cat=c.docs.map(function(d){var o=d.data()||{};o.id=d.id;return o});render()});
+    db.collection('samples').orderBy('ts','desc').onSnapshot(function(s){
+      clearTimeout(t);
+      entries=s.docs.map(function(d){var o=d.data()||{};o.id=d.id;return o});
+      render();resolveNames();
+    },function(){clearTimeout(t);$('empty').textContent='Could not load records.'});
+  }
+  route();if(window.claude&&claude.use)init();else $('empty').textContent='This app needs to run inside Claude.';
+})();
+</script>
+</body>
+</html>

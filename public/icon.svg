@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="45%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="lens" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#fef3c7" stop-opacity="0.15"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#1e293b"/>
+  <!-- Cute temples / arms -->
+  <path d="M92 238 L120 238" stroke="url(#gold)" stroke-width="20" stroke-linecap="round"/>
+  <path d="M392 238 L420 238" stroke="url(#gold)" stroke-width="20" stroke-linecap="round"/>
+  <!-- Left & right lenses -->
+  <circle cx="176" cy="256" r="68" fill="url(#lens)" stroke="url(#gold)" stroke-width="22"/>
+  <circle cx="336" cy="256" r="68" fill="url(#lens)" stroke="url(#gold)" stroke-width="22"/>
+  <!-- Cute curved nose bridge -->
+  <path d="M242 246 Q256 226 270 246" fill="none" stroke="url(#gold)" stroke-width="20" stroke-linecap="round"/>
+  <!-- Cute lens shine glints -->
+  <path d="M142 228 Q154 212 174 212" fill="none" stroke="#fef3c7" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <path d="M302 228 Q314 212 334 212" fill="none" stroke="#fef3c7" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <!-- Little gold star sparkle -->
+  <path d="M256 154 L262 170 L278 176 L262 182 L256 198 L250 182 L234 176 L250 170 Z" fill="#fde68a"/>
+</svg>
